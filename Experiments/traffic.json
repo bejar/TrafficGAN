@@ -1,4 +1,4 @@
 {
-  "datapath": '/home/bejar/storage/Data/Traffic/'
-
+  "datapath": "/home/bejar/storage/Data/Traffic/",
+  "infopath": "/home/bejar/storage/Data/Traffic/Info/"
 }

@@ -23,14 +23,24 @@ __author__ = 'bejar'
 
 class Config:
     datapath = None
+    infopath = None
+    cameraspath = None
 
     def __init__(self):
         """
         Read the configuration file that is in the current directory
         """
-        config = json.loads('traffic.json')
+
+        fp = open('../../traffic.json', 'r')
+        s = ''
+
+        for l in fp:
+            s += l
+        config = json.loads(s)
 
         self.datapath = config['datapath']
+        self.infopath = config['infopath']
+        self.cameraspath = config['cameraspath']
 
     def info(self):
         """
@@ -39,3 +49,5 @@ class Config:
         """
 
         print(f'DATAPATH={self.datapath}')
+        print(f'INFOPATH={self.infopath}')
+        print(f'CAMERASPATH={self.cameraspath}')

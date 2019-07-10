@@ -18,8 +18,18 @@ Misc
 """
 
 import json
+import numpy as np
 
 __author__ = 'bejar'
+
+
+def tile_images(image_stack):
+    """Given a stacked tensor of images, reshapes them into a horizontal tiling for
+    display."""
+    assert len(image_stack.shape) == 3
+    image_list = [image_stack[i, :, :] for i in range(image_stack.shape[0])]
+    tiled_images = np.concatenate(image_list, axis=1)
+    return tiled_images
 
 
 def recoding_dictionary(recode):

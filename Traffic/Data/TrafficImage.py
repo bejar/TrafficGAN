@@ -28,14 +28,15 @@ TrImage
 
 """
 
-from scipy.ndimage import zoom, imread
+from scipy.ndimage import zoom#, imread
 import numpy as np
 import matplotlib.pyplot as plt
 import PIL
 from PIL import Image
-from Traffic.Config.Constants import info_path
+# from Traffic.Config.Constants import info_path
 import glob
 import cv2
+from Traffic.Config import Config
 
 __author__ = 'bejar'
 
@@ -48,7 +49,8 @@ class TrafficImage:
 
         :param pimage:
         """
-        self.bcnnoserv = np.asarray(Image.open(info_path + 'BCNnoservice.gif'))
+        self.config = Config()
+        self.bcnnoserv = np.asarray(Image.open(self.config.infopath + 'BCNnoservice.gif'))
         self.correct = False
         self.data = None
         self.trans = False
@@ -91,7 +93,7 @@ class TrafficImage:
                img = self.data.crop((5, 5, self.data.size[0] - 5, self.data.size[1] - 5))
                img = self.data.resize((int(0.5 * self.data.size[0]), int(0.5 * self.data.size[1])), PIL.Image.ANTIALIAS)
             except IOError:
-                print self.fname
+                print(self.fname)
                 self.correct = False
 
         else:
@@ -119,7 +121,7 @@ class TrafficImage:
                 raise Exception('Image not loaded or already transformed')
             return self.data
         except IOError:
-            print self.fname
+            print(self.fname)
 
     def normalize(self):
         """
@@ -134,7 +136,7 @@ class TrafficImage:
 
     def get_data(self):
         """
-        Returns the data from the image, if it is not transformed yet
+        Returns the data from the image, if it is transformed already
         :return:
         """
         if self.data is not None and self.trans:
@@ -358,11 +360,11 @@ if __name__ == '__main__':
 
     image = TrImage()
     image.load_image('/home/bejar/storage/Data/Traffic/Cameras/20170201/201702011001-RondaLitoralBonPastor.gif')
-    print image.is_correct()
+    print(image.is_correct())
     image.show()
     if image.is_correct():
         im = image.transform_image(z_factor=0.5, crop=(5, 5, 5, 5))
-        print im.shape
+        print(im.shape)
         image.show()
     else:
         print('Incorrect Image')
