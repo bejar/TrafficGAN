@@ -55,6 +55,7 @@ except ImportError:
 
 from Traffic.Util.Losses import wasserstein_loss, gradient_penalty_loss
 from Traffic.Util.Misc import tile_images
+from Traffic.Config import Config
 
 
 class RandomWeightedAverage(_Merge):
@@ -63,8 +64,12 @@ class RandomWeightedAverage(_Merge):
     Inheriting from _Merge is a little messy but it was the quickest solution I could
     think of. Improvements appreciated."""
 
+    def __init__(self, batch_size, **kwargs):
+        super(_Merge, self).__init__(**kwargs)
+        self.BATCH_SIZE = batch_size
+
     def _merge_function(self, inputs):
-        weights = K.random_uniform((BATCH_SIZE, 1, 1, 1))
+        weights = K.random_uniform((self.BATCH_SIZE, 1, 1, 1))
         return (weights * inputs[0]) + ((1 - weights) * inputs[1])
 
 
@@ -76,14 +81,17 @@ class WGAN:
     GRADIENT_PENALTY_WEIGHT = 10  # As per the paper
     generator_noise_dimensions = 100
     image_dim = None
+    output_dir = None
 
-    def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim):
+    def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100):
         """
         Parameter initialization
         :param batch:
         :param tr_ratio:
         :param gr_penalty:
         """
+        config = Config()
+        self.output_dir = config.output_dir
         self.BATCH_SIZE = batch
         self.TRAINING_RATIO = tr_ratio
         self.GRADIENT_PENALTY_WEIGHT = gr_penalty
@@ -157,16 +165,14 @@ class WGAN:
         test_image_stack = np.squeeze(np.round(test_image_stack).astype(np.uint8))
         tiled_output = tile_images(test_image_stack)
         tiled_output = Image.fromarray(tiled_output, mode='RGB')  # L specifies greyscale
-        outfile = os.path.join(output_dir, 'epoch_{}.png'.format(epoch))
+        outfile = os.path.join(self.output_dir, f'epoch_{epoch}.png')
         tiled_output.save(outfile)
 
-    def train(self, X_train, y_train, X_test, y_test, output_dir):
+    def train(self, X_train):
 
 
         self.image_dim=X_train.shape[1:]
 
-        X_train = np.concatenate((X_train, X_test), axis=0)
-        X_train = X_train.reshape((X_train.shape[0], X_train.shape[1], X_train.shape[2], 3)) # 3 channels
         X_train = (X_train.astype(np.float32) - 127.5) / 127.5
 
         # Now we initialize the generator and discriminator.
@@ -212,7 +218,7 @@ class WGAN:
 
         # We also need to generate weighted-averages of real and generated samples,
         # to use for the gradient norm penalty.
-        averaged_samples = RandomWeightedAverage()([real_samples,
+        averaged_samples = RandomWeightedAverage(self.BATCH_SIZE)([real_samples,
                                                     generated_samples_for_discriminator])
         # We then run these samples through the discriminator as well. Note that we never
         # really use the discriminator output for these samples - we're only running them to
@@ -270,7 +276,7 @@ class WGAN:
             for i in range(int(X_train.shape[0] // (self.BATCH_SIZE * self.TRAINING_RATIO))):
                 discriminator_minibatches = X_train[i * minibatches_size:
                                                     (i + 1) * minibatches_size]
-                for j in range(TRAINING_RATIO):
+                for j in range(self.TRAINING_RATIO):
                     image_batch = discriminator_minibatches[j * self.BATCH_SIZE:
                                                             (j + 1) * self.BATCH_SIZE]
                     noise = np.random.rand(self.BATCH_SIZE, self.generator_noise_dimensions).astype(np.float32)
@@ -282,4 +288,4 @@ class WGAN:
                                                                      positive_y))
             # Still needs some code to display losses from the generator and discriminator,
             # progress bars, etc.
-            generate_images(generator, output_dir, epoch)
+            generate_images(generator, epoch)

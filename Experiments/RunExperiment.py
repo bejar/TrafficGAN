@@ -17,4 +17,41 @@ RunExperiment
 
 """
 
+import argparse
+import h5py
+
+from Traffic.Util.TransformImages import generate_dataset
+from Traffic.Util.Misc import list_range_days_generator, name_days_file
+from Traffic.Config import Config
+from Traffic.Data.Dataset import Dataset
+from Traffic.Models.WGAN import WGAN
+
+
 __author__ = 'bejar'
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--zoom', default=0.25, type=float, help='Zoom Factor')
+    # parser.add_argument('--chunk', default='1024', help='Chunk size')
+    # --test flag for including all data in the HDF5 file (last chunk is not the same size than the rest)
+    # parser.add_argument('--test', action='store_true', default=False, help='Data generated for test')
+    parser.add_argument('--idate', default='20161101', help='First day')
+    parser.add_argument('--fdate', default='20161130', help='Final day')
+
+
+    args = parser.parse_args()
+    z_factor = float(args.zoom)
+
+
+    days = list_range_days_generator(args.idate, args.fdate)
+    data = Dataset(days, args.zoom)
+    data.open()
+    data.load_data()
+    X_train = data.X_train
+    data.close()
+
+    wgan = WGAN()
+
+    wgan.train(X_train)
+

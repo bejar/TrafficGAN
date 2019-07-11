@@ -227,9 +227,8 @@ class TrafficImage:
     def entropy(self, nbins):
         """
         Given the data of an image, binarizes the RGB components in nbins equal sized 256/bins, counts its frequencies
-        (in a 3D Matrix) computes the histogram entropy and returns if it is more than a threshold
+        (in a 3D Matrix) computes the histogram entropy and returns the entropy
         nbins must be a power of 2
-        :param perc:
         :return:
         """
         if np.log2(nbins)!=int(np.log2(nbins)):

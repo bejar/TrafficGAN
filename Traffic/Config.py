@@ -21,17 +21,20 @@ import json
 
 __author__ = 'bejar'
 
+configpath = '/home/bejar/PycharmProjects/TrafficGAN/'
+
 class Config:
     datapath = None
     infopath = None
     cameraspath = None
+    output_dir = None
 
     def __init__(self):
         """
         Read the configuration file that is in the current directory
         """
 
-        fp = open('../../traffic.json', 'r')
+        fp = open(f'{configpath}traffic.json', 'r')
         s = ''
 
         for l in fp:
@@ -41,6 +44,7 @@ class Config:
         self.datapath = config['datapath']
         self.infopath = config['infopath']
         self.cameraspath = config['cameraspath']
+        self.output_dir = config['outputdir']
 
     def info(self):
         """
@@ -51,3 +55,4 @@ class Config:
         print(f'DATAPATH={self.datapath}')
         print(f'INFOPATH={self.infopath}')
         print(f'CAMERASPATH={self.cameraspath}')
+        print(f'OUTPUTDIR={self.output_dir}')
