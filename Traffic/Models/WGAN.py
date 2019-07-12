@@ -45,6 +45,7 @@ from keras.optimizers import Adam
 from keras.datasets import mnist
 from keras import backend as K
 from functools import partial
+from tqdm import tqdm
 
 try:
     from PIL import Image
@@ -168,7 +169,7 @@ class WGAN:
         outfile = os.path.join(self.output_dir, f'epoch_{epoch}.png')
         tiled_output.save(outfile)
 
-    def train(self, X_train):
+    def train(self, X_train, epochs,verbose):
 
 
         self.image_dim=X_train.shape[1:]
@@ -266,14 +267,14 @@ class WGAN:
         negative_y = -positive_y
         dummy_y = np.zeros((self.BATCH_SIZE, 1), dtype=np.float32)
 
-        for epoch in range(100):
+        for epoch in range(epochs):
             np.random.shuffle(X_train)
             print("Epoch: ", epoch)
             print("Number of batches: ", int(X_train.shape[0] // self.BATCH_SIZE))
             discriminator_loss = []
             generator_loss = []
             minibatches_size = self.BATCH_SIZE * self.TRAINING_RATIO
-            for i in range(int(X_train.shape[0] // (self.BATCH_SIZE * self.TRAINING_RATIO))):
+            for i in tqdm(range(int(X_train.shape[0] // (self.BATCH_SIZE * self.TRAINING_RATIO)))):
                 discriminator_minibatches = X_train[i * minibatches_size:
                                                     (i + 1) * minibatches_size]
                 for j in range(self.TRAINING_RATIO):
@@ -282,10 +283,10 @@ class WGAN:
                     noise = np.random.rand(self.BATCH_SIZE, self.generator_noise_dimensions).astype(np.float32)
                     discriminator_loss.append(discriminator_model.train_on_batch(
                         [image_batch, noise],
-                        [positive_y, negative_y, dummy_y]))
+                        [positive_y, negative_y, dummy_y], verbose=verbose))
                 generator_loss.append(generator_model.train_on_batch(np.random.rand(self.BATCH_SIZE,
                                                                                     self.generator_noise_dimensions),
-                                                                     positive_y))
+                                                                     positive_y, verbose=verbose))
             # Still needs some code to display losses from the generator and discriminator,
             # progress bars, etc.
             generate_images(generator, epoch)

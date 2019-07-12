@@ -19,6 +19,7 @@ RunExperiment
 
 import argparse
 import h5py
+import os
 
 from Traffic.Util.TransformImages import generate_dataset
 from Traffic.Util.Misc import list_range_days_generator, name_days_file
@@ -38,7 +39,10 @@ if __name__ == '__main__':
     # parser.add_argument('--test', action='store_true', default=False, help='Data generated for test')
     parser.add_argument('--idate', default='20161101', help='First day')
     parser.add_argument('--fdate', default='20161130', help='Final day')
+    parser.add_argument('--epochs', default=100, type=int, help='Epochs to train')
+    parser.add_argument('--verbos', action='store_true', default=False, help='Verbose output')
 
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
     args = parser.parse_args()
     z_factor = float(args.zoom)
@@ -53,5 +57,5 @@ if __name__ == '__main__':
 
     wgan = WGAN()
 
-    wgan.train(X_train)
+    wgan.train(X_train, args.epochs, args.verbose)
 
