@@ -100,7 +100,7 @@ class WGAN:
         self.TRAINING_RATIO = tr_ratio
         self.GRADIENT_PENALTY_WEIGHT = gr_penalty
         self.generator_noise_dimensions = gen_noise_dim
-        self.experiment = f"{strftime('%Y%m%d%H%M%S')}''
+        self.experiment = f"{strftime('%Y%m%d%H%M%S')}"
 
 
     def make_generator(self):
