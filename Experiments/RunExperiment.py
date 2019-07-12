@@ -60,3 +60,5 @@ if __name__ == '__main__':
 
     wgan.train(X_train, args.epochs, args.verbose)
 
+    print('Done.')
+
