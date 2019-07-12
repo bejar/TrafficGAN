@@ -47,6 +47,7 @@ from keras import backend as K
 from functools import partial
 from tqdm import tqdm
 import sys
+from time import strftime
 
 try:
     from PIL import Image
@@ -84,6 +85,7 @@ class WGAN:
     generator_noise_dimensions = 100
     image_dim = None
     output_dir = None
+    experiment = None
 
     def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100):
         """
@@ -98,6 +100,8 @@ class WGAN:
         self.TRAINING_RATIO = tr_ratio
         self.GRADIENT_PENALTY_WEIGHT = gr_penalty
         self.generator_noise_dimensions = gen_noise_dim
+        self.experiment = f"{strftime('%Y%m%d%H%M%S')}''
+
 
     def make_generator(self):
         """Creates a generator model that takes a 100-dimensional noise vector as a "seed",
@@ -167,7 +171,7 @@ class WGAN:
         test_image_stack = np.squeeze(np.round(test_image_stack).astype(np.uint8))
         tiled_output = tile_images(test_image_stack)
         tiled_output = Image.fromarray(tiled_output, mode='RGB')  # L specifies greyscale
-        outfile = os.path.join(self.output_dir, f'epoch_{epoch}.png')
+        outfile = os.path.join(self.output_dir, f'{self.experiment}_epoch_{epoch}.png')
         tiled_output.save(outfile)
 
     def train(self, X_train, epochs, verbose):
