@@ -270,8 +270,8 @@ class WGAN:
 
         for epoch in tqdm(range(epochs), file=sys.stdout):
             np.random.shuffle(X_train)
-            print("Epoch: ", epoch)
-            print("Number of batches: ", int(X_train.shape[0] // self.BATCH_SIZE))
+            # print("Epoch: ", epoch)
+            # print("Number of batches: ", int(X_train.shape[0] // self.BATCH_SIZE))
             discriminator_loss = []
             generator_loss = []
             minibatches_size = self.BATCH_SIZE * self.TRAINING_RATIO
