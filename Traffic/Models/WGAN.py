@@ -296,7 +296,7 @@ class WGAN:
                 # progress bars, etc.
                 self.generate_images(generator, epoch)
         else:
-            for epoch in range(epochs),:
+            for epoch in range(epochs):
                 np.random.shuffle(X_train)
                 print("Epoch: ", epoch)
                 print("Number of batches: ", int(X_train.shape[0] // self.BATCH_SIZE))
