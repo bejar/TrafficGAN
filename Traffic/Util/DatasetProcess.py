@@ -20,12 +20,13 @@ Generate_Dataset
 import glob
 from collections import Counter
 import numpy as np
+import pickle
+import h5py
+
 from Traffic.Config.Cameras import Cameras_ok
 from Traffic.Config.Constants import cameras_path, dataset_path, process_path, status_path
 from Traffic.Data.DataTram import DataTram
 from Traffic.Process.CamTram import CamTram
-import pickle
-import h5py
 from Traffic.Data.TrafficImage import TrImage
 from Traffic.Util.Misc import list_days_generator, name_days_file, dist_time, get_hour
 

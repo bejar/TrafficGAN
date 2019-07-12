@@ -36,7 +36,7 @@ from PIL import Image
 # from Traffic.Config.Constants import info_path
 import glob
 import cv2
-from Traffic.Config import Config
+from Traffic.ConfigTemplate import Config
 
 __author__ = 'bejar'
 
