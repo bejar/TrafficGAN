@@ -46,6 +46,7 @@ from keras.datasets import mnist
 from keras import backend as K
 from functools import partial
 from tqdm import tqdm
+import sys
 
 try:
     from PIL import Image
@@ -158,7 +159,7 @@ class WGAN:
         model.add(Dense(1, kernel_initializer='he_normal'))
         return model
 
-    def generate_images(self, generator_model, output_dir, epoch):
+    def generate_images(self, generator_model, epoch):
         """Feeds random seeds into the generator and tiles and saves the output to a PNG
         file."""
         test_image_stack = generator_model.predict(np.random.rand(10, self.generator_noise_dimensions))
@@ -267,17 +268,17 @@ class WGAN:
         negative_y = -positive_y
         dummy_y = np.zeros((self.BATCH_SIZE, 1), dtype=np.float32)
 
-        for epoch in tqdm(range(epochs)):
+        for epoch in tqdm(range(epochs), file=sys.stdout):
             np.random.shuffle(X_train)
             print("Epoch: ", epoch)
             print("Number of batches: ", int(X_train.shape[0] // self.BATCH_SIZE))
             discriminator_loss = []
             generator_loss = []
             minibatches_size = self.BATCH_SIZE * self.TRAINING_RATIO
-            for i in tqdm(range(int(X_train.shape[0] // (self.BATCH_SIZE * self.TRAINING_RATIO)))):
+            for i in tqdm(range(int(X_train.shape[0] // (self.BATCH_SIZE * self.TRAINING_RATIO))), file=sys.stdout):
                 discriminator_minibatches = X_train[i * minibatches_size:
                                                     (i + 1) * minibatches_size]
-                for j in tqdm(range(self.TRAINING_RATIO)):
+                for j in tqdm(range(self.TRAINING_RATIO), file=sys.stdout):
                     image_batch = discriminator_minibatches[j * self.BATCH_SIZE:
                                                             (j + 1) * self.BATCH_SIZE]
                     noise = np.random.rand(self.BATCH_SIZE, self.generator_noise_dimensions).astype(np.float32)
