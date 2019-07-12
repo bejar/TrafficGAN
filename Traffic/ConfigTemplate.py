@@ -34,7 +34,7 @@ class Config:
         Read the configuration file that is in the current directory
         """
 
-        fp = open(f'{configpath}traffic.json', 'r')
+        fp = open(f'{configpath}/traffic.json', 'r')
         s = ''
 
         for l in fp:

@@ -1,4 +1,6 @@
 {
   "datapath": "/home/bejar/storage/Data/Traffic/",
-  "infopath": "/home/bejar/storage/Data/Traffic/Info/"
+  "infopath": "/home/bejar/storage/Data/Traffic/Info/",
+  "cameraspath": "/home/bejar/storage/Data/Traffic/Cameras/",
+  "outputdir": "/home/bejar/storage/Data/Traffic/"
 }
