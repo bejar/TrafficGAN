@@ -277,7 +277,7 @@ class WGAN:
             for i in tqdm(range(int(X_train.shape[0] // (self.BATCH_SIZE * self.TRAINING_RATIO)))):
                 discriminator_minibatches = X_train[i * minibatches_size:
                                                     (i + 1) * minibatches_size]
-                for j in range(self.TRAINING_RATIO):
+                for j in tqdm(range(self.TRAINING_RATIO)):
                     image_batch = discriminator_minibatches[j * self.BATCH_SIZE:
                                                             (j + 1) * self.BATCH_SIZE]
                     noise = np.random.rand(self.BATCH_SIZE, self.generator_noise_dimensions).astype(np.float32)
@@ -290,4 +290,4 @@ class WGAN:
 
             # Still needs some code to display losses from the generator and discriminator,
             # progress bars, etc.
-            generate_images(generator, epoch)
+            self.generate_images(generator, epoch)

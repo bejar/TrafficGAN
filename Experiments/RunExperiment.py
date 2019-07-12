@@ -26,7 +26,8 @@ from Traffic.Util.Misc import list_range_days_generator, name_days_file
 from Traffic.Config import Config
 from Traffic.Data.Dataset import Dataset
 from Traffic.Models.WGAN import WGAN
-
+import warnings
+warnings.filterwarnings("ignore")
 
 __author__ = 'bejar'
 
