@@ -287,6 +287,7 @@ class WGAN:
                 generator_loss.append(generator_model.train_on_batch(np.random.rand(self.BATCH_SIZE,
                                                                                     self.generator_noise_dimensions),
                                                                      positive_y, verbose=verbose))
+
             # Still needs some code to display losses from the generator and discriminator,
             # progress bars, etc.
             generate_images(generator, epoch)
