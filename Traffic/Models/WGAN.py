@@ -267,7 +267,7 @@ class WGAN:
         negative_y = -positive_y
         dummy_y = np.zeros((self.BATCH_SIZE, 1), dtype=np.float32)
 
-        for epoch in range(epochs):
+        for epoch in tqdm(range(epochs)):
             np.random.shuffle(X_train)
             print("Epoch: ", epoch)
             print("Number of batches: ", int(X_train.shape[0] // self.BATCH_SIZE))
@@ -283,10 +283,10 @@ class WGAN:
                     noise = np.random.rand(self.BATCH_SIZE, self.generator_noise_dimensions).astype(np.float32)
                     discriminator_loss.append(discriminator_model.train_on_batch(
                         [image_batch, noise],
-                        [positive_y, negative_y, dummy_y], verbose=verbose))
+                        [positive_y, negative_y, dummy_y]))
                 generator_loss.append(generator_model.train_on_batch(np.random.rand(self.BATCH_SIZE,
                                                                                     self.generator_noise_dimensions),
-                                                                     positive_y, verbose=verbose))
+                                                                     positive_y))
 
             # Still needs some code to display losses from the generator and discriminator,
             # progress bars, etc.
