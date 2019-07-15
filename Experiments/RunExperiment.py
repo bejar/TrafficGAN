@@ -44,7 +44,7 @@ if __name__ == '__main__':
     parser.add_argument('--verbose', action='store_true', default=False, help='Verbose output')
     parser.add_argument('--batch', default=64, type=int, help='Batch size')
     parser.add_argument('--trratio', default=5, type=int, help='Training Ratio')
-    parser.add_argument('--nfilers', nargs='+', default=[128,64], type=int, help='Number of filters')
+    parser.add_argument('--nfilters', nargs='+', default=[128,64], type=int, help='Number of filters')
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
