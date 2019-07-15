@@ -300,13 +300,9 @@ class WGAN:
                 # Still needs some code to display losses from the generator and discriminator,
                 # progress bars, etc.
                 if epoch % self.imggen == 0:
-                    print(generator_loss[-1], discriminator_loss[-1])
-                    self.generate_images(generator, epoch, generator_loss[-1], discriminator_loss[-1])
-            self.generate_images(generator, epoch, generator_loss[-1], discriminator_loss[-1])
-            for dl in discriminator_loss:
-                print(dl)
-            for gl in generator_loss_loss:
-                print(gl)
+                    print(generator_loss[-1])
+                    self.generate_images(generator, epoch, generator_loss[-1], 0)
+            self.generate_images(generator, epoch, generator_loss[-1],0)
         else:
             for epoch in range(epochs):
                 np.random.shuffle(X_train)
@@ -332,10 +328,10 @@ class WGAN:
                 # Still needs some code to display losses from the generator and discriminator,
                 # progress bars, etc.
                 if epoch % self.imggen == 0:
-                    self.generate_images(generator, epoch, generator_loss[-1], discriminator_loss[-1])
-            self.generate_images(generator, epoch, generator_loss[-1], discriminator_loss[-1])
-            for dl in discriminator_loss:
-                print(dl)
-            for gl in generator_loss_loss:
-                print(gl)
+                    self.generate_images(generator, epoch, generator_loss[-1], 0)
+                for dl in discriminator_loss:
+                    print(dl)
+                for gl in generator_loss_loss:
+                    print(gl)
+            self.generate_images(generator, epoch, generator_loss[-1], 0)
 
