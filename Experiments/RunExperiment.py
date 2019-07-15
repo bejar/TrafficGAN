@@ -59,7 +59,7 @@ if __name__ == '__main__':
     X_train = data.X_train
     data.close()
 
-    wgan = WGAN(batch=args.batch, tr_ratio=args.trratio, num_filters=nfilters)
+    wgan = WGAN(batch=args.batch, tr_ratio=args.trratio, num_filters=args.nfilters)
 
     wgan.train(X_train, args.epochs, args.verbose)
 
