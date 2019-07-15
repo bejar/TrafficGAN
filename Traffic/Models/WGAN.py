@@ -321,10 +321,11 @@ class WGAN:
                         discriminator_loss.append(discriminator_model.train_on_batch(
                             [image_batch, noise],
                             [positive_y, negative_y, dummy_y]))
+                    print(discriminator_loss)
                     generator_loss.append(generator_model.train_on_batch(np.random.rand(self.BATCH_SIZE,
                                                                                         self.generator_noise_dimensions),
                                                                          positive_y))
-
+                    print(generator_loss)
                 # Still needs some code to display losses from the generator and discriminator,
                 # progress bars, etc.
                 if epoch % self.imggen == 0:
