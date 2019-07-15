@@ -42,6 +42,9 @@ if __name__ == '__main__':
     parser.add_argument('--fdate', default='20161130', help='Final day')
     parser.add_argument('--epochs', default=100, type=int, help='Epochs to train')
     parser.add_argument('--verbose', action='store_true', default=False, help='Verbose output')
+    parser.add_argument('--batch', default=64, type=int, help='Batch size')
+    parser.add_argument('--trratio', default=5, type=int, help='Training Ratio')
+    parser.add_argument('--nfilers', , nargs='+', default=[128,64], type=int, help='Number of filters')
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -56,7 +59,7 @@ if __name__ == '__main__':
     X_train = data.X_train
     data.close()
 
-    wgan = WGAN()
+    wgan = WGAN(batch=args.batch, tr_ratio=args.trratio, num_filters=nfilters)
 
     wgan.train(X_train, args.epochs, args.verbose)
 

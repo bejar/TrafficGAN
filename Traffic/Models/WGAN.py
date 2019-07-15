@@ -86,8 +86,9 @@ class WGAN:
     image_dim = None
     output_dir = None
     experiment = None
+    num_filters = None
 
-    def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100):
+    def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128,64)):
         """
         Parameter initialization
         :param batch:
@@ -101,11 +102,12 @@ class WGAN:
         self.GRADIENT_PENALTY_WEIGHT = gr_penalty
         self.generator_noise_dimensions = gen_noise_dim
         self.experiment = f"{strftime('%Y%m%d%H%M%S')}"
+        self.num_filters = num_filters
 
 
     def make_generator(self):
         """Creates a generator model that takes a 100-dimensional noise vector as a "seed",
-        and outputs images of size 28x28x1."""
+        and outputs images of size correspondinh to the input images sizes."""
 
         xdim, ydim, chann = self.image_dim
 
@@ -116,20 +118,20 @@ class WGAN:
         model = Sequential()
         model.add(Dense(1024, input_dim=self.generator_noise_dimensions))
         model.add(LeakyReLU())
-        model.add(Dense(128 * xdim * ydim))
+        model.add(Dense(self.num_filters[0] * xdim * ydim))
         model.add(BatchNormalization())
         model.add(LeakyReLU())
 
-        model.add(Reshape((xdim, ydim, 128), input_shape=(128 * xdim * ydim,)))
+        model.add(Reshape((xdim, ydim, self.num_filters[0]), input_shape=(self.num_filters[0] * xdim * ydim,)))
         bn_axis = -1
 
-        model.add(Conv2DTranspose(128, (5, 5), strides=2, padding='same'))
+        model.add(Conv2DTranspose(self.num_filters[0], (5, 5), strides=2, padding='same'))
         model.add(BatchNormalization(axis=bn_axis))
         model.add(LeakyReLU())
-        model.add(Convolution2D(64, (5, 5), padding='same'))
+        model.add(Convolution2D(self.num_filters[1], (5, 5), padding='same'))
         model.add(BatchNormalization(axis=bn_axis))
         model.add(LeakyReLU())
-        model.add(Conv2DTranspose(64, (5, 5), strides=2, padding='same'))
+        model.add(Conv2DTranspose(self.num_filters[1], (5, 5), strides=2, padding='same'))
         model.add(BatchNormalization(axis=bn_axis))
         model.add(LeakyReLU())
 
@@ -149,12 +151,12 @@ class WGAN:
         used in the discriminator."""
         model = Sequential()
 
-        model.add(Convolution2D(64, (5, 5), padding='same', input_shape=self.image_dim))
+        model.add(Convolution2D(self.num_filters[1], (5, 5), padding='same', input_shape=self.image_dim))
         model.add(LeakyReLU())
-        model.add(Convolution2D(128, (5, 5), kernel_initializer='he_normal',
+        model.add(Convolution2D(self.num_filters[0], (5, 5), kernel_initializer='he_normal',
                                 strides=[2, 2]))
         model.add(LeakyReLU())
-        model.add(Convolution2D(128, (5, 5), kernel_initializer='he_normal', padding='same',
+        model.add(Convolution2D(self.num_filters[0], (5, 5), kernel_initializer='he_normal', padding='same',
                                 strides=[2, 2]))
         model.add(LeakyReLU())
         model.add(Flatten())
