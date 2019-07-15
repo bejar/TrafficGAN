@@ -278,15 +278,15 @@ class WGAN:
         dummy_y = np.zeros((self.BATCH_SIZE, 1), dtype=np.float32)
 
         if verbose:
-            for epoch in tqdm(range(epochs), file=sys.stdout):
+            for epoch in tqdm(range(epochs), file=sys.stdout, desc='Epochs'):
                 np.random.shuffle(X_train)
                 discriminator_loss = []
                 generator_loss = []
                 minibatches_size = self.BATCH_SIZE * self.TRAINING_RATIO
-                for i in tqdm(range(int(X_train.shape[0] // (self.BATCH_SIZE * self.TRAINING_RATIO))), file=sys.stdout):
+                for i in tqdm(range(int(X_train.shape[0] // (self.BATCH_SIZE * self.TRAINING_RATIO))), file=sys.stdout, desc='Gen'):
                     discriminator_minibatches = X_train[i * minibatches_size:
                                                         (i + 1) * minibatches_size]
-                    for j in tqdm(range(self.TRAINING_RATIO), file=sys.stdout):
+                    for j in tqdm(range(self.TRAINING_RATIO), file=sys.stdout, desc='Disc'):
                         image_batch = discriminator_minibatches[j * self.BATCH_SIZE:
                                                                 (j + 1) * self.BATCH_SIZE]
                         noise = np.random.rand(self.BATCH_SIZE, self.generator_noise_dimensions).astype(np.float32)
@@ -300,6 +300,7 @@ class WGAN:
                 # Still needs some code to display losses from the generator and discriminator,
                 # progress bars, etc.
                 if epoch % self.imggen == 0:
+                    print(generator_loss[-1], discriminator_loss[-1])
                     self.generate_images(generator, epoch, generator_loss[-1], discriminator_loss[-1])
             self.generate_images(generator, epoch, generator_loss[-1], discriminator_loss[-1])
             for dl in discriminator_loss:
