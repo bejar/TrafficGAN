@@ -87,8 +87,10 @@ class WGAN:
     output_dir = None
     experiment = None
     num_filters = None
+    imggen = None
+    nsamples = None
 
-    def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128,64)):
+    def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128,64),imggen=5, nsamples=4):
         """
         Parameter initialization
         :param batch:
@@ -103,7 +105,8 @@ class WGAN:
         self.generator_noise_dimensions = gen_noise_dim
         self.experiment = f"{strftime('%Y%m%d%H%M%S')}"
         self.num_filters = num_filters
-
+        self.imggen = imggen
+        self.nsamples=nsamples
 
     def make_generator(self):
         """Creates a generator model that takes a 100-dimensional noise vector as a "seed",
@@ -165,15 +168,15 @@ class WGAN:
         model.add(Dense(1, kernel_initializer='he_normal'))
         return model
 
-    def generate_images(self, generator_model, epoch):
+    def generate_images(self, generator_model, epoch, gloss, dloss):
         """Feeds random seeds into the generator and tiles and saves the output to a PNG
         file."""
-        test_image_stack = generator_model.predict(np.random.rand(10, self.generator_noise_dimensions))
+        test_image_stack = generator_model.predict(np.random.rand(self.nsamples*self.nsamples, self.generator_noise_dimensions))
         test_image_stack = (test_image_stack * 127.5) + 127.5
         test_image_stack = np.squeeze(np.round(test_image_stack).astype(np.uint8))
-        tiled_output = tile_images(test_image_stack)
+        tiled_output = tile_images(test_image_stack, self.nsamples)
         tiled_output = Image.fromarray(tiled_output, mode='RGB')  # L specifies greyscale
-        outfile = os.path.join(self.output_dir, f'{self.experiment}_epoch_{epoch}.png')
+        outfile = os.path.join(self.output_dir, f'{self.experiment}_epoch_{epoch:03d}_G{gloss:3.4f}_D{dloss:3.4f}.png')
         tiled_output.save(outfile)
 
     def train(self, X_train, epochs, verbose):
@@ -296,7 +299,13 @@ class WGAN:
 
                 # Still needs some code to display losses from the generator and discriminator,
                 # progress bars, etc.
-                self.generate_images(generator, epoch)
+                if epoch % self.imggen == 0:
+                    self.generate_images(generator, epoch, generator_loss[-1], discriminator_loss[-1])
+            self.generate_images(generator, epoch, generator_loss[-1], discriminator_loss[-1])
+            for dl in discriminator_loss:
+                print(dl)
+            for gl in generator_loss_loss:
+                print(gl)
         else:
             for epoch in range(epochs):
                 np.random.shuffle(X_train)
@@ -321,5 +330,11 @@ class WGAN:
 
                 # Still needs some code to display losses from the generator and discriminator,
                 # progress bars, etc.
-                self.generate_images(generator, epoch)
+                if epoch % self.imggen == 0:
+                    self.generate_images(generator, epoch, generator_loss[-1], discriminator_loss[-1])
+            self.generate_images(generator, epoch, generator_loss[-1], discriminator_loss[-1])
+            for dl in discriminator_loss:
+                print(dl)
+            for gl in generator_loss_loss:
+                print(gl)
 

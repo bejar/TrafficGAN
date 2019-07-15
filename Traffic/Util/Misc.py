@@ -23,13 +23,16 @@ import numpy as np
 __author__ = 'bejar'
 
 
-def tile_images(image_stack):
+def tile_images(image_stack, nsamples):
     """Given a stacked tensor of images, reshapes them into a horizontal tiling for
     display."""
     # assert len(image_stack.shape) == 3
     image_list = [image_stack[i, :, :, :] for i in range(image_stack.shape[0])]
-    tiled_images = np.concatenate(image_list, axis=1)
-    return tiled_images
+    ltile = []
+    for i in range(nsamples):
+        ltile.append(np.concatenate(image_list[i * nsamples:(i + 1) * nsamples], axis=1))
+
+    return np.concatenate(ltile, axis=0)
 
 
 def recoding_dictionary(recode):
@@ -170,6 +173,7 @@ def dist_time(time1, time2):
     t1 = (time1 % 100) + (60 * ((time1 // 100) % 100))
     t2 = (time2 % 100) + (60 * ((time2 // 100) % 100))
     return t2 - t1
+
 
 def get_hour(time1):
     """

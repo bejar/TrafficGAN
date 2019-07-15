@@ -27,12 +27,12 @@ from Traffic.Config import Config
 from Traffic.Data.Dataset import Dataset
 from Traffic.Models.WGAN import WGAN
 import warnings
+
 warnings.filterwarnings("ignore")
 
 __author__ = 'bejar'
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser()
     parser.add_argument('--zoom', default=0.25, type=float, help='Zoom Factor')
     # parser.add_argument('--chunk', default='1024', help='Chunk size')
@@ -44,13 +44,14 @@ if __name__ == '__main__':
     parser.add_argument('--verbose', action='store_true', default=False, help='Verbose output')
     parser.add_argument('--batch', default=64, type=int, help='Batch size')
     parser.add_argument('--trratio', default=5, type=int, help='Training Ratio')
-    parser.add_argument('--nfilters', nargs='+', default=[128,64], type=int, help='Number of convolutional filters')
+    parser.add_argument('--nfilters', nargs='+', default=[128, 64], type=int, help='Number of convolutional filters')
+    parser.add_argument('--nsamples', default=4, type=int, help='SQRT of the number of samples to generate')
+    parser.add_argument('--noisedim', default=100, type=int, help='Number of dimensions of the noise for the generator')
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
     args = parser.parse_args()
     z_factor = float(args.zoom)
-
 
     days = list_range_days_generator(args.idate, args.fdate)
     data = Dataset(days, args.zoom)
@@ -59,9 +60,9 @@ if __name__ == '__main__':
     X_train = data.X_train
     data.close()
 
-    wgan = WGAN(batch=args.batch, tr_ratio=args.trratio, num_filters=args.nfilters)
+    wgan = WGAN(batch=args.batch, tr_ratio=args.trratio, num_filters=args.nfilters, nsamples=args.nsamples,
+                gen_noise_dim=args.noisedim)
 
     wgan.train(X_train, args.epochs, args.verbose)
 
     print('Done.')
-
