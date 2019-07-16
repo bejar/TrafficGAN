@@ -45,6 +45,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch', default=64, type=int, help='Batch size')
     parser.add_argument('--trratio', default=5, type=int, help='Training Ratio')
     parser.add_argument('--nfilters', nargs='+', default=[128, 64], type=int, help='Number of convolutional filters')
+    parser.add_argument('--dense', default=1024, type=int, help='Size of the dense layer')
     parser.add_argument('--nsamples', default=4, type=int, help='SQRT of the number of samples to generate')
     parser.add_argument('--noisedim', default=100, type=int, help='Number of dimensions of the noise for the generator')
 
@@ -61,7 +62,7 @@ if __name__ == '__main__':
     data.close()
 
     wgan = WGAN(batch=args.batch, tr_ratio=args.trratio, num_filters=args.nfilters, nsamples=args.nsamples,
-                gen_noise_dim=args.noisedim)
+                gen_noise_dim=args.noisedim, dense=args.dense)
 
     wgan.train(X_train, args.epochs, args.verbose)
 

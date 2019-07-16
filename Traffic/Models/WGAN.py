@@ -89,8 +89,9 @@ class WGAN:
     num_filters = None
     imggen = None
     nsamples = None
+    dense = None
 
-    def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128,64),imggen=5, nsamples=4):
+    def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128,64), dense=1024, imggen=5, nsamples=4):
         """
         Parameter initialization
         :param batch:
@@ -107,6 +108,7 @@ class WGAN:
         self.num_filters = num_filters
         self.imggen = imggen
         self.nsamples=nsamples
+        self.dense = dense
 
     def make_generator(self):
         """Creates a generator model that takes a 100-dimensional noise vector as a "seed",
@@ -119,7 +121,7 @@ class WGAN:
         ydim = ydim //4
 
         model = Sequential()
-        model.add(Dense(1024, input_dim=self.generator_noise_dimensions))
+        model.add(Dense(self.dense, input_dim=self.generator_noise_dimensions))
         model.add(LeakyReLU())
         model.add(Dense(self.num_filters[0] * xdim * ydim))
         model.add(BatchNormalization())
@@ -163,7 +165,7 @@ class WGAN:
                                 strides=[2, 2]))
         model.add(LeakyReLU())
         model.add(Flatten())
-        model.add(Dense(1024, kernel_initializer='he_normal'))
+        model.add(Dense(self.dense, kernel_initializer='he_normal'))
         model.add(LeakyReLU())
         model.add(Dense(1, kernel_initializer='he_normal'))
         return model
