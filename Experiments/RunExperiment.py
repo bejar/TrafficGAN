@@ -63,7 +63,7 @@ if __name__ == '__main__':
     data.close()
 
     wgan = WGAN(batch=args.batch, tr_ratio=args.trratio, num_filters=args.nfilters, nsamples=args.nsamples,
-                gen_noise_dim=args.noisedim, dense=args.dense)
+                gen_noise_dim=args.noisedim, dense=args.dense, ckernel=args.ckernel)
 
     wgan.train(X_train, args.epochs, args.verbose)
 
