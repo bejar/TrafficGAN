@@ -328,7 +328,7 @@ class WGAN:
                 # progress bars, etc.
                 if epoch % self.imggen == 0:
                     self.generate_images(generator, epoch, generator_loss[-1], np.mean(discriminator_loss[-1]))
-                for gl in generator_loss_loss:
+                for gl in generator_loss:
                     print(gl)
             self.generate_images(generator, epoch, generator_loss[-1], np.mean(discriminator_loss[-1]))
 
