@@ -145,7 +145,7 @@ class WGAN:
         # Because we normalized training inputs to lie in the range [-1, 1],
         # the tanh function should be used for the output of the generator to ensure
         # its output also lies in this range.
-        model.add(Convolution2D(chann, (5, 5), padding='same', activation='tanh'))
+        model.add(Convolution2D(chann, (self.ckernel, self.ckernel), padding='same', activation='tanh'))
         return model
 
     def make_discriminator(self):
