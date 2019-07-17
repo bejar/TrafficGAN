@@ -91,6 +91,7 @@ class WGAN:
     nsamples = None
     dense = None
     ckernel = None
+    saveint = None
 
     def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128,64), dense=1024, imggen=5, nsamples=4, ckernel=3):
         """

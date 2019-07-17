@@ -48,6 +48,7 @@ if __name__ == '__main__':
     parser.add_argument('--nfilters', nargs='+', default=[128, 64], type=int, help='Number of convolutional filters')
     parser.add_argument('--dense', default=1024, type=int, help='Size of the dense layer')
     parser.add_argument('--nsamples', default=4, type=int, help='SQRT of the number of samples to generate')
+    parser.add_argument('--saveint', default=10, type=int, help='Save samples every n epochs')
     parser.add_argument('--noisedim', default=100, type=int, help='Number of dimensions of the noise for the generator')
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -63,7 +64,7 @@ if __name__ == '__main__':
     data.close()
 
     wgan = WGAN(batch=args.batch, tr_ratio=args.trratio, num_filters=args.nfilters, nsamples=args.nsamples,
-                gen_noise_dim=args.noisedim, dense=args.dense, ckernel=args.ckernel)
+                gen_noise_dim=args.noisedim, dense=args.dense, ckernel=args.ckernel, imggen=args.saveint)
 
     wgan.train(X_train, args.epochs, args.verbose)
 
