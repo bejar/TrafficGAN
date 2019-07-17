@@ -93,6 +93,7 @@ class WGAN:
     ckernel = None
     saveint = None
 
+
     def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128,64), dense=1024, imggen=5, nsamples=4, ckernel=3):
         """
         Parameter initialization
@@ -109,9 +110,10 @@ class WGAN:
         self.experiment = f"{strftime('%Y%m%d%H%M%S')}"
         self.num_filters = num_filters
         self.imggen = imggen
-        self.nsamples=nsamples
+        self.nsamples = nsamples
         self.dense = dense
         self.ckernel = ckernel
+        print(ckernel, num_filters)
 
     def make_generator(self):
         """Creates a generator model that takes a 100-dimensional noise vector as a "seed",
