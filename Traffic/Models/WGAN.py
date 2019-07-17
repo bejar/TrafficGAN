@@ -113,7 +113,6 @@ class WGAN:
         self.nsamples = nsamples
         self.dense = dense
         self.ckernel = ckernel
-        print(ckernel, num_filters)
 
     def make_generator(self):
         """Creates a generator model that takes a 100-dimensional noise vector as a "seed",
