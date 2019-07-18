@@ -190,7 +190,7 @@ class WGAN:
                                f'_ND{self.generator_noise_dimensions}'
                                f'_K{self.ckernel}'
                                f'_F{self.num_filters[0]}-{self.num_filters[1]}'
-                               f'_D{seld.dense}.png')
+                               f'_D{self.dense}.png')
         tiled_output.save(outfile)
 
     def train(self, X_train, epochs, verbose):
