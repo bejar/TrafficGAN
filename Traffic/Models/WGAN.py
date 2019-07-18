@@ -188,7 +188,7 @@ class WGAN:
                                f'_GTR{self.TRAINING_RATIO}'
                                f'_B{self.BATCH_SIZE}'
                                f'_ND{self.generator_noise_dimensions}'
-                               f'_K{self.kernels}'
+                               f'_K{self.ckernel}'
                                f'_F{self.num_filters[0]}-{self.num_filters[1]}'
                                f'_D{seld.dense}.png')
         tiled_output.save(outfile)
