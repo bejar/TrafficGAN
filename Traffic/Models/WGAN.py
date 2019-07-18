@@ -91,10 +91,8 @@ class WGAN:
     nsamples = None
     dense = None
     ckernel = None
-    saveint = None
 
-
-    def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128,64), dense=1024, imggen=5, nsamples=4, ckernel=3):
+    def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128,64), ckernel=3, dense=1024, imggen=5, nsamples=4):
         """
         Parameter initialization
         :param batch:
@@ -103,16 +101,16 @@ class WGAN:
         """
         config = Config()
         self.output_dir = config.output_dir
-        self.BATCH_SIZE = batch
-        self.TRAINING_RATIO = tr_ratio
+        self.BATCH_SIZE = batch  # Batch size
+        self.TRAINING_RATIO = tr_ratio # Traning/generator ratio
         self.GRADIENT_PENALTY_WEIGHT = gr_penalty
-        self.generator_noise_dimensions = gen_noise_dim
+        self.generator_noise_dimensions = gen_noise_dim # Dimension of the noise
+        self.num_filters = num_filters  # Number of filters in the kernels
+        self.imggen = imggen  # interval for sample generation
+        self.nsamples = nsamples  # Number of samples generated
+        self.dense = dense  # Size of the dense layer
+        self.ckernel = ckernel # Size of the kernels
         self.experiment = f"{strftime('%Y%m%d%H%M%S')}"
-        self.num_filters = num_filters
-        self.imggen = imggen
-        self.nsamples = nsamples
-        self.dense = dense
-        self.ckernel = ckernel
 
     def make_generator(self):
         """Creates a generator model that takes a 100-dimensional noise vector as a "seed",
@@ -182,7 +180,17 @@ class WGAN:
         test_image_stack = np.squeeze(np.round(test_image_stack).astype(np.uint8))
         tiled_output = tile_images(test_image_stack, self.nsamples)
         tiled_output = Image.fromarray(tiled_output, mode='RGB')  # L specifies greyscale
-        outfile = os.path.join(self.output_dir, f'{self.experiment}_epoch_{epoch:03d}_G{gloss:3.4f}_D{dloss:3.4f}.png')
+        outfile = os.path.join(self.output_dir,
+                               f'{self.experiment}'
+                               f'_EP{epoch:03d}'
+                               f'_GL{gloss:3.4f}'
+                               f'_DL{dloss:3.4f}'
+                               f'_GTR{self.TRAINING_RATIO}'
+                               f'_B{self.BATCH_SIZE}'
+                               f'_ND{self.generator_noise_dimensions}'
+                               f'_K{self.kernels}'
+                               f'_F{self.num_filters[0]}-{self.num_filters[1]}'
+                               f'_D{seld.dense}.png')
         tiled_output.save(outfile)
 
     def train(self, X_train, epochs, verbose):
