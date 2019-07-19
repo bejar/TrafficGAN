@@ -181,7 +181,7 @@ class WGAN:
         test_image_stack = (test_image_stack * 127.5) + 127.5
         test_image_stack = np.squeeze(np.round(test_image_stack).astype(np.uint8))
         tiled_output = tile_images(test_image_stack, self.nsamples)
-        tiled_output = Image.fromarray(tiled_output, mode='RGB')  # L specifies greyscale
+        tiled_output = Image.fromarray(tiled_output, mode='RGB')
         outfile = os.path.join(self.output_dir,
                                f'{self.exp}'
                                f'_EP{epoch:03d}'
