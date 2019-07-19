@@ -91,8 +91,9 @@ class WGAN:
     nsamples = None
     dense = None
     ckernel = None
+    exp = None
 
-    def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128,64), ckernel=3, dense=1024, imggen=5, nsamples=4):
+    def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128,64), ckernel=3, dense=1024, imggen=5, nsamples=4, exp=None):
         """
         Parameter initialization
         :param batch:
@@ -111,6 +112,7 @@ class WGAN:
         self.dense = dense  # Size of the dense layer
         self.ckernel = ckernel # Size of the kernels
         self.experiment = f"{strftime('%Y%m%d%H%M%S')}"
+        self.exp=exp
 
     def make_generator(self):
         """Creates a generator model that takes a 100-dimensional noise vector as a "seed",
@@ -181,16 +183,17 @@ class WGAN:
         tiled_output = tile_images(test_image_stack, self.nsamples)
         tiled_output = Image.fromarray(tiled_output, mode='RGB')  # L specifies greyscale
         outfile = os.path.join(self.output_dir,
-                               f'{self.experiment}'
+                               f'{self.exp}'
                                f'_EP{epoch:03d}'
-                               f'_GL{gloss:3.4f}'
-                               f'_DL{dloss:3.4f}'
                                f'_GTR{self.TRAINING_RATIO}'
                                f'_B{self.BATCH_SIZE}'
                                f'_ND{self.generator_noise_dimensions}'
                                f'_K{self.ckernel}'
                                f'_F{self.num_filters[0]}-{self.num_filters[1]}'
-                               f'_D{self.dense}.png')
+                               f'_D{self.dense}'
+                               f'_LG{gloss:3.4f}'
+                               f'_LD{dloss:3.4f}'
+                               f'.png')
         tiled_output.save(outfile)
 
     def train(self, X_train, epochs, verbose):
