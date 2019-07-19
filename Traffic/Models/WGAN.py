@@ -32,11 +32,10 @@ remove the calls to generate_images.
 
 """
 
-
 import os
 import numpy as np
 from keras.models import Model, Sequential
-from keras.layers import Input, Dense, Reshape, Flatten
+from keras.layers import Input, Dense, Reshape, Flatten, Dropout
 from keras.layers.merge import _Merge
 from keras.layers.convolutional import Convolution2D, Conv2DTranspose
 from keras.layers.normalization import BatchNormalization
@@ -93,8 +92,10 @@ class WGAN:
     ckernel = None
     exp = None
     model = 'WGAN'
+    dropout = None
 
-    def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128,64), ckernel=3, dense=1024, imggen=5, nsamples=4, exp=None):
+    def __init__(self, image_dim=None, tr_ratio=5, gen_noise_dim=100, num_filters=(128, 64), dkernel=3, gkernel=3,
+                 nsamples=4, dropout=0.25, exp=None):
         """
         Parameter initialization
         :param batch:
@@ -103,17 +104,19 @@ class WGAN:
         """
         config = Config()
         self.output_dir = config.output_dir
-        self.BATCH_SIZE = batch  # Batch size
-        self.TRAINING_RATIO = tr_ratio # Traning/generator ratio
-        self.GRADIENT_PENALTY_WEIGHT = gr_penalty
-        self.generator_noise_dimensions = gen_noise_dim # Dimension of the noise
+        self.TRAINING_RATIO = tr_ratio  # Traning/generator ratio
+        self.GRADIENT_PENALTY_WEIGHT = 10
+        self.generator_noise_dimensions = gen_noise_dim  # Dimension of the noise
         self.num_filters = num_filters  # Number of filters in the kernels
-        self.imggen = imggen  # interval for sample generation
+
         self.nsamples = nsamples  # Number of samples generated
-        self.dense = dense  # Size of the dense layer
-        self.ckernel = ckernel # Size of the kernels
+
         self.experiment = f"{strftime('%Y%m%d%H%M%S')}"
-        self.exp=exp
+        self.exp = exp
+        self.image_dim = image_dim
+        self.dkernel = dkernel  # Size of the discriminator kernels
+        self.gkernel = dkernel  # Size of the generator kernels
+        self.dropout = dropout
 
     def make_generator(self):
         """Creates a generator model that takes a 100-dimensional noise vector as a "seed",
@@ -122,8 +125,8 @@ class WGAN:
         xdim, ydim, chann = self.image_dim
 
         # reduce dimensionality two steps
-        xdim = xdim //4
-        ydim = ydim //4
+        xdim = xdim // 4
+        ydim = ydim // 4
 
         model = Sequential()
         model.add(Dense(self.dense, input_dim=self.generator_noise_dimensions))
@@ -135,13 +138,13 @@ class WGAN:
         model.add(Reshape((xdim, ydim, self.num_filters[0]), input_shape=(self.num_filters[0] * xdim * ydim,)))
         bn_axis = -1
 
-        model.add(Conv2DTranspose(self.num_filters[0], (self.ckernel, self.ckernel), strides=2, padding='same'))
+        model.add(Conv2DTranspose(self.num_filters[0], (self.gkernel, self.gkernel), strides=2, padding='same'))
         model.add(BatchNormalization(axis=bn_axis))
         model.add(LeakyReLU())
-        model.add(Convolution2D(self.num_filters[1], (self.ckernel, self.ckernel), padding='same'))
+        model.add(Convolution2D(self.num_filters[1], (self.gkernel, self.gkernel), padding='same'))
         model.add(BatchNormalization(axis=bn_axis))
         model.add(LeakyReLU())
-        model.add(Conv2DTranspose(self.num_filters[1], (self.ckernel, self.ckernel), strides=2, padding='same'))
+        model.add(Conv2DTranspose(self.num_filters[1], (self.gkernel, self.gkernel), strides=2, padding='same'))
         model.add(BatchNormalization(axis=bn_axis))
         model.add(LeakyReLU())
 
@@ -161,16 +164,21 @@ class WGAN:
         used in the discriminator."""
         model = Sequential()
 
-        model.add(Convolution2D(self.num_filters[1], (self.ckernel, self.ckernel), padding='same', input_shape=self.image_dim))
+        model.add(Convolution2D(self.num_filters[1], (self.dkernel, self.dkernel), padding='same',
+                                input_shape=self.image_dim))
         model.add(LeakyReLU())
-        model.add(Convolution2D(self.num_filters[0], (self.ckernel, self.ckernel), kernel_initializer='he_normal',
+        model.add(Dropout(self.dropout))
+        model.add(Convolution2D(self.num_filters[0], (self.dkernel, self.dkernel), kernel_initializer='he_normal',
                                 strides=[2, 2]))
         model.add(LeakyReLU())
-        model.add(Convolution2D(self.num_filters[0], (self.ckernel, self.ckernel), kernel_initializer='he_normal', padding='same',
+        model.add(Dropout(self.dropout))
+        model.add(Convolution2D(self.num_filters[0], (self.dkernel, self.dkernel), kernel_initializer='he_normal',
+                                padding='same',
                                 strides=[2, 2]))
         model.add(LeakyReLU())
+        model.add(Dropout(self.dropout))
         model.add(Flatten())
-        model.add(Dense(self.dense, kernel_initializer='he_normal'))
+        model.add(Dense(1000, kernel_initializer='he_normal'))
         model.add(LeakyReLU())
         model.add(Dense(1, kernel_initializer='he_normal'))
         return model
@@ -178,7 +186,8 @@ class WGAN:
     def generate_images(self, generator_model, epoch, gloss, dloss):
         """Feeds random seeds into the generator and tiles and saves the output to a PNG
         file."""
-        test_image_stack = generator_model.predict(np.random.rand(self.nsamples*self.nsamples, self.generator_noise_dimensions))
+        test_image_stack = generator_model.predict(
+            np.random.rand(self.nsamples * self.nsamples, self.generator_noise_dimensions))
         test_image_stack = (test_image_stack * 127.5) + 127.5
         test_image_stack = np.squeeze(np.round(test_image_stack).astype(np.uint8))
         tiled_output = tile_images(test_image_stack, self.nsamples)
@@ -197,10 +206,11 @@ class WGAN:
                                f'.png')
         tiled_output.save(outfile)
 
-    def train(self, X_train, epochs, verbose):
+    def train(self, X_train, epochs, batch_size=128, sample_interval=50, verbose=False):
+        self.BATCH_SIZE = batch_size
+        self.imggen = sample_interval
 
-
-        self.image_dim=X_train.shape[1:]
+        # self.image_dim=X_train.shape[1:]
 
         X_train = (X_train.astype(np.float32) - 127.5) / 127.5
 
@@ -248,7 +258,7 @@ class WGAN:
         # We also need to generate weighted-averages of real and generated samples,
         # to use for the gradient norm penalty.
         averaged_samples = RandomWeightedAverage(self.BATCH_SIZE)([real_samples,
-                                                    generated_samples_for_discriminator])
+                                                                   generated_samples_for_discriminator])
         # We then run these samples through the discriminator as well. Note that we never
         # really use the discriminator output for these samples - we're only running them to
         # get the gradient norm for the gradient penalty loss.
@@ -301,7 +311,8 @@ class WGAN:
                 discriminator_loss = []
                 generator_loss = []
                 minibatches_size = self.BATCH_SIZE * self.TRAINING_RATIO
-                for i in tqdm(range(int(X_train.shape[0] // (self.BATCH_SIZE * self.TRAINING_RATIO))), file=sys.stdout, desc='Gen'):
+                for i in tqdm(range(int(X_train.shape[0] // (self.BATCH_SIZE * self.TRAINING_RATIO))), file=sys.stdout,
+                              desc='Gen'):
                     discriminator_minibatches = X_train[i * minibatches_size:
                                                         (i + 1) * minibatches_size]
                     for j in tqdm(range(self.TRAINING_RATIO), file=sys.stdout, desc='Disc'):
@@ -320,7 +331,7 @@ class WGAN:
                 if epoch % self.imggen == 0:
                     print(generator_loss[-1])
                     self.generate_images(generator, epoch, generator_loss[-1], np.mean(discriminator_loss[-1]))
-            self.generate_images(generator, epoch, generator_loss[-1],np.mean(discriminator_loss[-1]))
+            self.generate_images(generator, epoch, generator_loss[-1], np.mean(discriminator_loss[-1]))
         else:
             for epoch in range(epochs):
                 np.random.shuffle(X_train)
@@ -349,4 +360,3 @@ class WGAN:
                 for gl in generator_loss:
                     print(gl)
             self.generate_images(generator, epoch, generator_loss[-1], np.mean(discriminator_loss[-1]))
-

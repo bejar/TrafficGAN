@@ -47,8 +47,8 @@ class WGAN2():
     model = 'WGAN2'
     dropout = None
 
-    def __init__(self, image_dim=None, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128, 64),
-                 dkernel=3, gkernel=3, nsamples=4, exp=None, dropout=0.25):
+    def __init__(self, image_dim=None, tr_ratio=5,  gen_noise_dim=100, num_filters=(128, 64),
+                 dkernel=3, gkernel=3, nsamples=4, dropout=0.25, exp=None):
         config = Config()
         self.output_dir = config.output_dir
 
@@ -64,10 +64,7 @@ class WGAN2():
         # xdim, ydim, chann = self.image_dim
         self.dropout = dropout
 
-        # self.img_rows = 28
-        # self.img_cols = 28
-        # self.channels = 1
-        # self.image_dim = (self.img_rows, self.img_cols, self.channels)
+
         self.latent_dim = gen_noise_dim
 
         # Following parameter and optimizer set as recommended in paper
@@ -161,12 +158,12 @@ class WGAN2():
 
         return Model(img, validity)
 
-    def train(self, X_train, epochs, batch_size=128, sample_interval=50):
+    def train(self, X_train, epochs, batch_size=128, sample_interval=50, verbose=False):
 
         # Rescale -1 to 1
         X_train = (X_train.astype(np.float32) - 127.5) / 127.5
         # X_train = np.expand_dims(X_train, axis=3)
-        self.batch_sice = batch_size
+        self.batch_size = batch_size
 
         # Adversarial ground truths
         valid = -np.ones((batch_size, 1))

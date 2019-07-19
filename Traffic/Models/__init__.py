@@ -17,4 +17,12 @@ __init__.py
 
 """
 
+from .WGAN import WGAN
+from .WGAN2 import WGAN2
+
 __author__ = 'bejar'
+
+
+__all__ = ['WGAN',
+           'WGAN2'
+           ]

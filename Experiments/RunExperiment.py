@@ -25,12 +25,14 @@ from Traffic.Util.TransformImages import generate_dataset
 from Traffic.Util.Misc import list_range_days_generator, name_days_file
 from Traffic.Config import Config
 from Traffic.Data.Dataset import Dataset
-from Traffic.Models.WGAN import WGAN
+from Traffic.Models import WGAN, WGAN2
 import warnings
 
 warnings.filterwarnings("ignore")
 
 __author__ = 'bejar'
+
+models = {'WGAN': WGAN, 'WGAN2':WGAN2}
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -44,12 +46,15 @@ if __name__ == '__main__':
     parser.add_argument('--verbose', action='store_true', default=False, help='Verbose output')
     parser.add_argument('--batch', default=64, type=int, help='Batch size')
     parser.add_argument('--trratio', default=5, type=int, help='Training Ratio')
-    parser.add_argument('--ckernel', default=3, type=int, help='Size of the convolutional kernel')
+    parser.add_argument('--gkernel', default=3, type=int, help='Size of the convolutional kernel for the generator')
+    parser.add_argument('--gkernel', default=3, type=int, help='Size of the convolutional kernel for the discriminator')
+    parser.add_argument('--dropout', default=0.25, type=float, help='Dropout probability')
     parser.add_argument('--nfilters', nargs='+', default=[128, 64], type=int, help='Number of convolutional filters')
     parser.add_argument('--dense', default=1024, type=int, help='Size of the dense layer')
     parser.add_argument('--nsamples', default=4, type=int, help='SQRT of the number of samples to generate')
     parser.add_argument('--saveint', default=10, type=int, help='Save samples every n epochs')
     parser.add_argument('--noisedim', default=100, type=int, help='Number of dimensions of the noise for the generator')
+    parser.add_argument('--model', default='WGAN', type=str, help='Model used for training')
 
     os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
@@ -63,9 +68,12 @@ if __name__ == '__main__':
     X_train = data.X_train
     data.close()
 
-    wgan = WGAN(batch=args.batch, tr_ratio=args.trratio, num_filters=args.nfilters, nsamples=args.nsamples,
-                gen_noise_dim=args.noisedim, dense=args.dense, ckernel=args.ckernel, imggen=args.saveint, exp=f'{args.idate}-{args.fdate}-Z{args.zoom}')
+    MODEL = models[args.model]
 
-    wgan.train(X_train, args.epochs, args.verbose)
+    wgan = MODEL(img_dim=X_train[1:], tr_ratio=args.trratio, gen_noise_dim=args.noisedim, num_filters=args.nfilters,
+                gkernel=args.gkernel, dkernel=args.dkernel, nsamples=args.nsamples, dropout=args.dropout,
+                exp=f'{args.idate}-{args.fdate}-Z{args.zoom}')
+
+    wgan.train(X_train, args.epochs, batch_size=args.batch, sample_interval=args.saveint, verbose=args.verbose)
 
     print('Done.')
