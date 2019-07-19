@@ -32,7 +32,7 @@ remove the calls to generate_images.
 
 """
 
-import argparse
+
 import os
 import numpy as np
 from keras.models import Model, Sequential
@@ -92,6 +92,7 @@ class WGAN:
     dense = None
     ckernel = None
     exp = None
+    model = 'WGAN'
 
     def __init__(self, batch=64, tr_ratio=5, gr_penalty=10, gen_noise_dim=100, num_filters=(128,64), ckernel=3, dense=1024, imggen=5, nsamples=4, exp=None):
         """
@@ -120,7 +121,7 @@ class WGAN:
 
         xdim, ydim, chann = self.image_dim
 
-        # reduce dimensionality dwo steps
+        # reduce dimensionality two steps
         xdim = xdim //4
         ydim = ydim //4
 
@@ -183,7 +184,7 @@ class WGAN:
         tiled_output = tile_images(test_image_stack, self.nsamples)
         tiled_output = Image.fromarray(tiled_output, mode='RGB')
         outfile = os.path.join(self.output_dir,
-                               f'{self.exp}'
+                               f'{self.model}-{self.exp}'
                                f'_EP{epoch:03d}'
                                f'_GTR{self.TRAINING_RATIO}'
                                f'_B{self.BATCH_SIZE}'
