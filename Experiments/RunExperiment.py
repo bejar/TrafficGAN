@@ -47,7 +47,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch', default=64, type=int, help='Batch size')
     parser.add_argument('--trratio', default=5, type=int, help='Training Ratio')
     parser.add_argument('--gkernel', default=3, type=int, help='Size of the convolutional kernel for the generator')
-    parser.add_argument('--gkernel', default=3, type=int, help='Size of the convolutional kernel for the discriminator')
+    parser.add_argument('--dkernel', default=3, type=int, help='Size of the convolutional kernel for the discriminator')
     parser.add_argument('--dropout', default=0.25, type=float, help='Dropout probability')
     parser.add_argument('--nfilters', nargs='+', default=[128, 64], type=int, help='Number of convolutional filters')
     parser.add_argument('--dense', default=1024, type=int, help='Size of the dense layer')
