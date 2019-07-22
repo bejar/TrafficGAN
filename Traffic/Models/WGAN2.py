@@ -156,6 +156,8 @@ class WGAN2():
         model.add(LeakyReLU(alpha=0.2))
         model.add(Dropout(self.dropout))
         model.add(Flatten())
+        model.add(Dense(1000, kernel_initializer='he_normal'))
+        model.add(LeakyReLU(alpha=0.2))
         model.add(Dense(1))
 
         model.summary()
