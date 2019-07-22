@@ -70,7 +70,7 @@ if __name__ == '__main__':
 
     MODEL = models[args.model]
 
-    wgan = MODEL(img_dim=X_train[1:], tr_ratio=args.trratio, gen_noise_dim=args.noisedim, num_filters=args.nfilters,
+    wgan = MODEL(image_dim=X_train[1:], tr_ratio=args.trratio, gen_noise_dim=args.noisedim, num_filters=args.nfilters,
                 gkernel=args.gkernel, dkernel=args.dkernel, nsamples=args.nsamples, dropout=args.dropout,
                 exp=f'{args.idate}-{args.fdate}-Z{args.zoom}')
 
