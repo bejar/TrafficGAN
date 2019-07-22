@@ -228,7 +228,7 @@ class WGAN2():
                                f'_EP{epoch:03d}'
                                f'_GTR{self.n_critic}'
                                f'_B{self.batch_size}'
-                               f'_ND{self.generator_noise_dimensions}'
+                               f'_ND{self.latent_dim}'
                                f'_K{self.gkernel}-{self.dkernel}'
                                f'_F{self.num_filters[0]}-{self.num_filters[1]}'
                                f'_D{self.dropout}'
