@@ -118,7 +118,7 @@ class WGAN2():
         model.add(Conv2D(self.num_filters[1], kernel_size=self.gkernel, padding="same"))
         model.add(BatchNormalization(momentum=0.8))
         model.add(Activation("relu"))
-        model.add(Conv2D(chann, kernel_size=self.ckernel, padding="same"))
+        model.add(Conv2D(chann, kernel_size=self.gkernel, padding="same"))
         model.add(Activation("tanh"))
 
         model.summary()
