@@ -34,6 +34,13 @@ from time import strftime
 from Traffic.Config import Config
 from Traffic.Util.Misc import tile_images
 
+try:
+    from PIL import Image
+except ImportError:
+    print('This script depends on pillow! '
+          'Please install it (e.g. with pip install pillow)')
+    exit()
+
 
 class WGAN2():
     image_dim = None
