@@ -212,6 +212,8 @@ class WGAN:
                                f'_K{self.ckernel}'
                                f'_F{self.num_filters[0]}-{self.num_filters[1]}'
                                f'_D{self.dense}'
+                               f'_DR{self.dropout}'
+                               f'_U{self.resize}'
                                f'_LG{gloss:3.4f}'
                                f'_LD{dloss:3.4f}'
                                f'.png')

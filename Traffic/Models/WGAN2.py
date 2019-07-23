@@ -246,7 +246,8 @@ class WGAN2():
                                f'_ND{self.latent_dim}'
                                f'_K{self.gkernel}-{self.dkernel}'
                                f'_F{self.num_filters[0]}-{self.num_filters[1]}'
-                               f'_D{self.dropout}'
+                               f'_DR{self.dropout}'
+                               f'_U{self.resize}'
                                f'_LG{gloss:3.4f}'
                                f'_LD{dloss:3.4f}'
                                f'.png')
