@@ -117,6 +117,7 @@ class WGAN:
         self.dkernel = dkernel  # Size of the discriminator kernels
         self.gkernel = dkernel  # Size of the generator kernels
         self.dropout = dropout
+        self.dense = 1000
 
     def make_generator(self):
         """Creates a generator model that takes a 100-dimensional noise vector as a "seed",
@@ -178,7 +179,7 @@ class WGAN:
         model.add(LeakyReLU())
         model.add(Dropout(self.dropout))
         model.add(Flatten())
-        model.add(Dense(1000, kernel_initializer='he_normal'))
+        model.add(Dense(self.dense, kernel_initializer='he_normal'))
         model.add(LeakyReLU())
         model.add(Dense(1, kernel_initializer='he_normal'))
         return model
