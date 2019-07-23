@@ -52,6 +52,7 @@ if __name__ == '__main__':
     parser.add_argument('--nfilters', nargs='+', default=[128, 64], type=int, help='Number of convolutional filters')
     parser.add_argument('--dense', default=1024, type=int, help='Size of the dense layer')
     parser.add_argument('--nsamples', default=4, type=int, help='SQRT of the number of samples to generate')
+    parser.add_argument('--resize', default=2, type=int, help='Number of image resizes performed by the generator')
     parser.add_argument('--saveint', default=10, type=int, help='Save samples every n epochs')
     parser.add_argument('--noisedim', default=100, type=int, help='Number of dimensions of the noise for the generator')
     parser.add_argument('--model', default='WGAN', type=str, help='Model used for training')

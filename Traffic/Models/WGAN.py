@@ -93,9 +93,10 @@ class WGAN:
     exp = None
     model = 'WGAN'
     dropout = None
+    resize = None
 
     def __init__(self, image_dim=None, tr_ratio=5, gen_noise_dim=100, num_filters=(128, 64), dkernel=3, gkernel=3,
-                 nsamples=4, dropout=0.25, exp=None):
+                 nsamples=4, dropout=0.25, resize=2, exp=None):
         """
         Parameter initialization
         :param batch:
@@ -118,6 +119,7 @@ class WGAN:
         self.gkernel = dkernel  # Size of the generator kernels
         self.dropout = dropout
         self.dense = 512
+        self.resize = resize
 
     def make_generator(self):
         """Creates a generator model that takes a 100-dimensional noise vector as a "seed",
@@ -125,9 +127,13 @@ class WGAN:
 
         xdim, ydim, chann = self.image_dim
 
-        # reduce dimensionality two steps
-        xdim = xdim // 4
-        ydim = ydim // 4
+        # reduce dimensionality n steps
+        rdim = 2**self.resize
+        if (xdim % rdim !=0) or (ydim %rdim!=0):
+            raise NameError('invalid upscaling')
+
+        xdim = xdim // rdim
+        ydim = ydim // rdim
 
         model = Sequential()
         model.add(Dense(self.dense, input_dim=self.generator_noise_dimensions))
@@ -139,15 +145,17 @@ class WGAN:
         model.add(Reshape((xdim, ydim, self.num_filters[0]), input_shape=(self.num_filters[0] * xdim * ydim,)))
         bn_axis = -1
 
-        model.add(Conv2DTranspose(self.num_filters[0], (self.gkernel, self.gkernel), strides=2, padding='same'))
-        model.add(BatchNormalization(axis=bn_axis))
-        model.add(LeakyReLU())
-        model.add(Convolution2D(self.num_filters[1], (self.gkernel, self.gkernel), padding='same'))
-        model.add(BatchNormalization(axis=bn_axis))
-        model.add(LeakyReLU())
-        model.add(Conv2DTranspose(self.num_filters[1], (self.gkernel, self.gkernel), strides=2, padding='same'))
-        model.add(BatchNormalization(axis=bn_axis))
-        model.add(LeakyReLU())
+        for i in range(self.resize):
+            model.add(Conv2DTranspose(self.num_filters[0], (self.gkernel, self.gkernel), strides=2, padding='same'))
+            model.add(BatchNormalization(axis=bn_axis))
+            model.add(LeakyReLU())
+            model.add(Convolution2D(self.num_filters[1], (self.gkernel, self.gkernel), padding='same'))
+            model.add(BatchNormalization(axis=bn_axis))
+            model.add(LeakyReLU())
+
+        # model.add(Conv2DTranspose(self.num_filters[1], (self.gkernel, self.gkernel), strides=2, padding='same'))
+        # model.add(BatchNormalization(axis=bn_axis))
+        # model.add(LeakyReLU())
 
         # Because we normalized training inputs to lie in the range [-1, 1],
         # the tanh function should be used for the output of the generator to ensure
@@ -180,6 +188,8 @@ class WGAN:
         model.add(Dropout(self.dropout))
         model.add(Flatten())
         model.add(Dense(self.dense, kernel_initializer='he_normal'))
+        model.add(LeakyReLU())
+        model.add(Dense(self.dense//2, kernel_initializer='he_normal'))
         model.add(LeakyReLU())
         model.add(Dense(1, kernel_initializer='he_normal'))
         return model

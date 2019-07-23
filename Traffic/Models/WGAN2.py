@@ -53,9 +53,10 @@ class WGAN2():
     exp = None
     model = 'WGAN2'
     dropout = None
+    resize = None
 
     def __init__(self, image_dim=None, tr_ratio=5,  gen_noise_dim=100, num_filters=(128, 64),
-                 dkernel=3, gkernel=3, nsamples=4, dropout=0.25, exp=None):
+                 dkernel=3, gkernel=3, nsamples=4, dropout=0.25, resize=2, exp=None):
         config = Config()
         self.output_dir = config.output_dir
 
@@ -70,6 +71,7 @@ class WGAN2():
         self.image_dim = image_dim
         # xdim, ydim, chann = self.image_dim
         self.dropout = dropout
+        self.resize = resize
 
 
         self.latent_dim = gen_noise_dim
@@ -110,21 +112,32 @@ class WGAN2():
     def build_generator(self):
         xdim, ydim, chann = self.image_dim
         # reduce dimensionality two steps
-        xdim = xdim // 4
-        ydim = ydim // 4
+        # reduce dimensionality n steps
+        rdim = 2 ** self.resize
+        if (xdim % rdim != 0) or (ydim % rdim != 0):
+            raise NameError('invalid upscaling')
+
+        xdim = xdim // rdim
+        ydim = ydim // rdim
 
         model = Sequential()
 
         model.add(Dense(self.num_filters[0] * xdim * ydim, activation="relu", input_dim=self.latent_dim))
         model.add(Reshape((xdim, ydim, self.num_filters[0])))
-        model.add(UpSampling2D())
-        model.add(Conv2D(self.num_filters[0], kernel_size=self.gkernel, padding="same"))
-        model.add(BatchNormalization(momentum=0.8))
-        model.add(Activation("relu"))
-        model.add(UpSampling2D())
-        model.add(Conv2D(self.num_filters[1], kernel_size=self.gkernel, padding="same"))
-        model.add(BatchNormalization(momentum=0.8))
-        model.add(Activation("relu"))
+
+
+        for i in range(self.resize):
+            model.add(UpSampling2D())
+            model.add(Conv2D(self.num_filters[0], kernel_size=self.gkernel, padding="same"))
+            model.add(BatchNormalization(momentum=0.8))
+            model.add(LeakyReLU())
+
+        # model.add(UpSampling2D())
+        # model.add(Conv2D(self.num_filters[1], kernel_size=self.gkernel, padding="same"))
+        # model.add(BatchNormalization(momentum=0.8))
+        # model.add(LeakyReLU())
+
+
         model.add(Conv2D(chann, kernel_size=self.gkernel, padding="same"))
         model.add(Activation("tanh"))
 
@@ -145,19 +158,19 @@ class WGAN2():
         model.add(Conv2D(32, kernel_size=self.dkernel, strides=2, padding="same"))
         model.add(ZeroPadding2D(padding=((0, 1), (0, 1))))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(LeakyReLU(alpha=0.2))
+        model.add(LeakyReLU())
         model.add(Dropout(self.dropout))
         model.add(Conv2D(64, kernel_size=self.dkernel, strides=2, padding="same"))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(LeakyReLU(alpha=0.2))
+        model.add(LeakyReLU())
         model.add(Dropout(self.dropout))
         model.add(Conv2D(128, kernel_size=self.dkernel, strides=1, padding="same"))
         model.add(BatchNormalization(momentum=0.8))
-        model.add(LeakyReLU(alpha=0.2))
+        model.add(LeakyReLU())
         model.add(Dropout(self.dropout))
         model.add(Flatten())
         model.add(Dense(1000, kernel_initializer='he_normal'))
-        model.add(LeakyReLU(alpha=0.2))
+        model.add(LeakyReLU())
         model.add(Dense(1))
 
         model.summary()
