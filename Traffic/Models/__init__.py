@@ -17,8 +17,8 @@ __init__.py
 
 """
 
-from .WGAN import WGAN
-from .WGAN2 import WGAN2
+from Traffic.Models.OLD.WGAN import WGAN
+from Traffic.Models.OLD.WGAN2 import WGAN2
 
 __author__ = 'bejar'
 
